@@ -22,10 +22,12 @@ namespace ConfigIt
             string[] filePaths = Directory.GetFiles(workingDirectory);
             foreach(string filePath in filePaths)
             {
-                Console.WriteLine(filePath);
-
-                // Read a text file line by line.  
                 DownloadRequest dr = new DownloadRequest(File.ReadAllLines(filePath));
+
+                string fileName = Path.GetFileName(filePath);
+                string result = (dr.IsValid() ? Library.PASS : Library.FAIL);
+
+                Console.WriteLine(fileName + " : " + result);
             }
         }
     }

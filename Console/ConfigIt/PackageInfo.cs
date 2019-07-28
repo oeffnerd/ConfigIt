@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ConfigIt
 {
-    class PackageInfo : InputType
+    class PackageInfo : InputType, IEquatable<PackageInfo>
     {
         public string name;
         public string version;
@@ -33,9 +33,23 @@ namespace ConfigIt
             version = sVersion;
         }
 
-        public override string Display()
+        public bool CheckConflict (PackageInfo pi)
         {
-            return name + " v." + version;
+            bool nameMatch = name.Equals(pi.name);
+            bool versionMatch = version.Equals(pi.version);
+
+            // If name !match no conflict, if it does and version doesnt there is
+            return (nameMatch && !versionMatch);
+        }
+
+        public override string ToString()
+        {
+            return name + " v." + version; //"<{name}> v.<{version}>"
+        }
+
+        public bool Equals (PackageInfo pi)
+        {
+            return (name.Equals(pi.name) && version.Equals(pi.version));
         }
     }
 }

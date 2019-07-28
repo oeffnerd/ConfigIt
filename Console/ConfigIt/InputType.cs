@@ -7,7 +7,7 @@ namespace ConfigIt
     class InputType
     {
         public bool error { get; set; }
-        public string display { get { return Display(); } }
+        public string display { get { return ToString(); } }
 
         public void Print ()
         {
@@ -20,7 +20,7 @@ namespace ConfigIt
             Console.WriteLine(display);
         }
 
-        public virtual string Display ()
+        public virtual string ToString ()
         {
             return "";
         }
