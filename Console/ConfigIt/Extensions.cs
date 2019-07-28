@@ -6,27 +6,30 @@ namespace ConfigIt
 {
     static class Extensions
     {
-
-        public static PackageInfo AddPackage(this List<PackageInfo> packages, PackageInfo package)
+        public static bool AddPackage(this List<PackageInfo> packages, PackageInfo package, out PackageInfo conflict)
         {
-            bool contains = false;
+            conflict = null;
+            bool add = true;
             for (int i = 0; i < packages.Count; i++)
             {
                 PackageInfo p = packages[i];
                 if (p.CheckConflict(package))
                 {
                     // We have a version mismatch
-                    return p;
+                    if(Global.DEBUG) Console.WriteLine("Version Conflict: " + p.display + " : " + package.display);
+                    conflict = p;
+                    break;
                 }
                 else if(p.Equals(package))
                 {
-                    contains = true;
+                    add = false;
                     break;
                 }
             }
 
-            if(!contains) packages.Add(package);
-            return null;
+            if (add) packages.Add(package);
+
+            return add;
         }
     }
 }

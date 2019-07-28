@@ -11,7 +11,7 @@ namespace ConfigIt
 
         public PackageInfo (string value)
         {
-            string[] pkgInfo = value.Split(Library.COMMA);
+            string[] pkgInfo = value.Split(Global.COMMA);
 
             if (pkgInfo.Length != 2)
             {

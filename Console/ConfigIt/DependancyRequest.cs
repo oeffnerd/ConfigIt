@@ -53,18 +53,91 @@ namespace ConfigIt
 
         public bool IsValid()
         {
-            List<PackageInfo> required = packages.ToList<PackageInfo>();
+            mRequired = new List<PackageInfo>();// packages.ToList<PackageInfo>();
 
+            //return Original();
+            return ValidateDownloads();
+        }
+
+        private bool ValidateDownloads()
+        {
+            bool valid = true;
+            foreach(PackageInfo pi in packages)
+            {
+                valid = AddPackage(pi);
+                if (!valid) return valid;
+            }
+            return valid;
+        }
+
+        private List<PackageInfo> mRequired;
+        private bool AddPackage(PackageInfo pi)
+        {
+            if(!mRequired.Contains(pi))
+            {
+                // try to add the dependancy
+                PackageInfo conflict = null;
+                bool added = mRequired.AddPackage(pi, out conflict);
+
+                if (conflict != null)
+                {
+                    // Display some information as to the conflict
+                    if (Global.DEBUG) Console.WriteLine("Conflict Adding Package: " + pi.display);
+                    return false;
+                }
+
+                if (added)
+                {
+                    if (Global.DEBUG) Console.WriteLine("Added Package: " + pi.display);
+                    return CheckDependancies(pi);
+                }
+            }
+            return true;
+        }
+
+        private bool CheckDependancies(PackageInfo pi)
+        {
+            //mRequired = packages.ToList<PackageInfo>();
+            bool result = true;
+            foreach (PackageDependancy pd in packageDependancies)
+            {
+                if (pd.package.Equals(pi))
+                {
+                    result = AddDependancy(pd);
+                }
+            }
+            return result;
+        }
+
+        private bool AddDependancy(PackageDependancy pd)
+        {
+            if (pd != null)
+            {
+                if (Global.DEBUG) Console.WriteLine("Adding Dependancies: " + pd.display);
+                //PackageInfo newPkg = pd.dependancy;
+                foreach (PackageInfo newPkg in pd.dependancies)
+                {
+                    if (!AddPackage(newPkg))
+                        return false;
+                }
+            }
+            return true;
+        }
+
+        private bool Original()
+        {
+            mRequired = packages.ToList<PackageInfo>();
             foreach (PackageDependancy pd in packageDependancies)
             {
                 //PackageInfo newPkg = pd.dependancy;
-                foreach(PackageInfo newPkg in pd.dependancies)
+                foreach (PackageInfo newPkg in pd.dependancies)
                 {
                     // As we loop through the dependancies we check to see if that package is included
-                    if (required.Contains(pd.package))
+                    if (mRequired.Contains(pd.package))
                     {
                         // try to add the dependancy
-                        PackageInfo conflict = required.AddPackage(newPkg);
+                        PackageInfo conflict = null;
+                        bool added = mRequired.AddPackage(newPkg, out conflict);
                         if (conflict != null)
                         {
                             // Display some information as to the conflict

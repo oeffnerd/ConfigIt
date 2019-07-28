@@ -25,7 +25,7 @@ namespace ConfigIt
                 DownloadRequest dr = new DownloadRequest(File.ReadAllLines(filePath));
 
                 string fileName = Path.GetFileName(filePath);
-                string result = (dr.IsValid() ? Library.PASS : Library.FAIL);
+                string result = (dr.IsValid() ? Global.PASS : Global.FAIL);
 
                 Console.WriteLine(fileName + " : " + result);
             }

@@ -7,11 +7,11 @@ namespace ConfigIt
     class PackageDependancy : InputType
     {
         public PackageInfo package;
-        public PackageInfo[] dependancies;
+        public PackageInfo[] dependancies = new PackageInfo[0];
 
         public PackageDependancy(string value)
         {
-            string[] parts = value.Split(Library.COMMA);
+            string[] parts = value.Split(Global.COMMA);
             if (parts.Length < 4 || (parts.Length % 2 != 0))
             {
                 error = true;
