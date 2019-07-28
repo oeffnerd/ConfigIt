@@ -23,6 +23,9 @@ namespace ConfigIt
             foreach(string filePath in filePaths)
             {
                 Console.WriteLine(filePath);
+
+                // Read a text file line by line.  
+                DownloadRequest dr = new DownloadRequest(File.ReadAllLines(filePath));
             }
         }
     }
