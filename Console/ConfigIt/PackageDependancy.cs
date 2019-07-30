@@ -4,6 +4,9 @@ using System.Text;
 
 namespace ConfigIt
 {
+    /// <summary>
+    /// Container for a package dependancy with code for parsing it
+    /// </summary>
     class PackageDependancy : InputType
     {
         public PackageInfo package;

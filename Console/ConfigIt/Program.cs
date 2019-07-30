@@ -11,23 +11,45 @@ namespace ConfigIt
     {
         static void Main(string[] args)
         {
-            listFilesInDirectory(@"C:\Users\David\Desktop\testdata\input");
+            //listFilesInDirectory(@"C:\Users\doeffner\Desktop\testdata\input");
+            //listFilesInDirectory(@"C:\Users\David\Desktop\testdata\input");
 
-            Console.WriteLine("Press Enter to Continue");
+            Console.WriteLine(Global.INSTRUCTIONS);
+            string folder = Console.ReadLine();
+
+            listFilesInDirectory(folder);
+
             Console.Read();
         }
 
-        static void listFilesInDirectory (string workingDirectory)
+
+        static void listFilesInDirectory(string workingDirectory)
         {
-            string[] filePaths = Directory.GetFiles(workingDirectory);
-            foreach(string filePath in filePaths)
+            // Check if directory exists
+            if (Directory.Exists(workingDirectory))
             {
-                DownloadRequest dr = new DownloadRequest(File.ReadAllLines(filePath));
+                // Load and loop through
+                foreach (string filePath in Directory.GetFiles(workingDirectory))
+                {
+                    string extension = Path.GetExtension(filePath);
+                    if (Path.GetExtension(filePath).Equals(Global.TXT_EXT))
+                    {
+                        //Console.WriteLine(filePath + " : " + Path.GetExtension(filePath));
+                        DownloadRequest dr = new DownloadRequest(File.ReadAllLines(filePath));
 
-                string fileName = Path.GetFileName(filePath);
-                string result = (dr.IsValid() ? Global.PASS : Global.FAIL);
+                        if (dr.LOADED)
+                        {
+                            string fileName = Path.GetFileName(filePath);
+                            string result = (dr.IsValid() ? Global.PASS : Global.FAIL);
 
-                Console.WriteLine(fileName + " : " + result);
+                            Console.WriteLine(fileName + " : " + result);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine(Global.ERROR_PATH);
             }
         }
     }

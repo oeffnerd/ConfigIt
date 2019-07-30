@@ -5,52 +5,84 @@ using System.Linq;
 
 namespace ConfigIt
 {
+    /// <summary>
+    /// Acts as the main object for each file that loads and validates the request
+    /// </summary>
     class DownloadRequest : InputType
     {
-        int downloads = 0;
-        PackageInfo[] packages;
-        int dependancies = 0;
-        PackageDependancy[] packageDependancies= new PackageDependancy[0];
+        private int mDownloads = 0;
+        private PackageInfo[] mPackages;
+        private int mDependancies = 0;
+        private PackageDependancy[] mPackageDependancies = new PackageDependancy[0];
+        private List<PackageInfo> mRequired;
 
+        public bool LOADED { get; set; }
+
+        /// <summary>
+        /// Constructor consisting of the lines of the file
+        /// </summary>
+        /// <param name="lines"></param>
         public DownloadRequest(string[] lines)
         {
             Load(lines);
         }
 
+        /// <summary>
+        /// Split up for now because down the road you may want 
+        /// to load it outside of the constructor
+        /// </summary>
+        /// <param name="lines"></param>
         private void Load(string[] lines)
         {
             int index = 0;
 
-            error = InputUtility.ParseInt(lines[index], out downloads);
-            if(error) return;
-            //Console.WriteLine("Number of requested downloads: " + downloads);
+            //Parse the first line looking for a number of downloads requested
+            //returns if its not of the proper format
+            error = InputUtility.ParseInt(lines[index], out mDownloads);
+            if (error) return;
 
-            packages = new PackageInfo[downloads];
-            for (index = 1; index < 1+downloads; index++)
+            // Now cast all of the packages
+            mPackages = new PackageInfo[mDownloads];
+            for (index = 1; index < 1 + mDownloads; index++)
             {
                 PackageInfo package = new PackageInfo(lines[index]);
-                packages[index - 1] = package;
-                //package.Print();
+                mPackages[index - 1] = package;
+
+                error = package.error;
+                //returns if its not of the proper format
+                if (error)
+                    return;
             }
+
+            LOADED = true;
 
             // if current index == lines.length there are no dependancies
             if (lines.Length == index) return;
 
-            error = InputUtility.ParseInt(lines[index], out dependancies);
+            //Parse the first line looking for a number of dependancies
+            //returns if its not of the proper format
+            error = InputUtility.ParseInt(lines[index], out mDependancies);
             if (error) return;
-            //Console.WriteLine("Number of package dependancies: " + dependancies);
 
-            packageDependancies = new PackageDependancy[dependancies];
+            mPackageDependancies = new PackageDependancy[mDependancies];
             int deltaIndex = index + 1;
-            for (index = deltaIndex; index < deltaIndex + dependancies; index++)
+            for (index = deltaIndex; index < deltaIndex + mDependancies; index++)
             {
                 PackageDependancy pd = new PackageDependancy(lines[index]);
 
-                packageDependancies[index- deltaIndex] = pd;
-                //pd.Print();
+                mPackageDependancies[index - deltaIndex] = pd;
+
+                error = pd.error;
+                //returns if its not of the proper format
+                if (error)
+                    return;
             }
         }
 
+        /// <summary>
+        /// Is it a valid request
+        /// </summary>
+        /// <returns></returns>
         public bool IsValid()
         {
             mRequired = new List<PackageInfo>();// packages.ToList<PackageInfo>();
@@ -62,7 +94,7 @@ namespace ConfigIt
         private bool ValidateDownloads()
         {
             bool valid = true;
-            foreach(PackageInfo pi in packages)
+            foreach (PackageInfo pi in mPackages)
             {
                 valid = AddPackage(pi);
                 if (!valid) return valid;
@@ -70,10 +102,15 @@ namespace ConfigIt
             return valid;
         }
 
-        private List<PackageInfo> mRequired;
+        /// <summary>
+        /// Adds a package to the required list and check for conflicts
+        /// if there is a conflict then pass it back and validate will fail
+        /// </summary>
+        /// <param name="pi"></param>
+        /// <returns></returns>
         private bool AddPackage(PackageInfo pi)
         {
-            if(!mRequired.Contains(pi))
+            if (!mRequired.Contains(pi))
             {
                 // try to add the dependancy
                 PackageInfo conflict = null;
@@ -95,11 +132,17 @@ namespace ConfigIt
             return true;
         }
 
+        /// <summary>
+        /// Checks all package dependancies for one matching "pi"
+        /// If it matches then those dependancies need to be added
+        /// </summary>
+        /// <param name="pi"></param>
+        /// <returns></returns>
         private bool CheckDependancies(PackageInfo pi)
         {
             //mRequired = packages.ToList<PackageInfo>();
             bool result = true;
-            foreach (PackageDependancy pd in packageDependancies)
+            foreach (PackageDependancy pd in mPackageDependancies)
             {
                 if (pd.package.Equals(pi))
                 {
@@ -109,6 +152,12 @@ namespace ConfigIt
             return result;
         }
 
+        /// <summary>
+        /// Loops through a package dependancy and adds all required packages
+        /// Part
+        /// </summary>
+        /// <param name="pd"></param>
+        /// <returns></returns>
         private bool AddDependancy(PackageDependancy pd)
         {
             if (pd != null)
@@ -124,10 +173,11 @@ namespace ConfigIt
             return true;
         }
 
+        // Works in farely low iterations but fails when adding a package whos dependancy has already been checked.
         private bool Original()
         {
-            mRequired = packages.ToList<PackageInfo>();
-            foreach (PackageDependancy pd in packageDependancies)
+            mRequired = mPackages.ToList<PackageInfo>();
+            foreach (PackageDependancy pd in mPackageDependancies)
             {
                 //PackageInfo newPkg = pd.dependancy;
                 foreach (PackageInfo newPkg in pd.dependancies)

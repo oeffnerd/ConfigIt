@@ -11,6 +11,7 @@ namespace ConfigIt
 
         public PackageInfo (string value)
         {
+            // Formatted "A,1"
             string[] pkgInfo = value.Split(Global.COMMA);
 
             if (pkgInfo.Length != 2)
@@ -27,12 +28,22 @@ namespace ConfigIt
             SetInfo(sName, sVersion);
         }
         
+        /// <summary>
+        /// Sets name and version
+        /// </summary>
+        /// <param name="sName"></param>
+        /// <param name="sVersion"></param>
         private void SetInfo(string sName, string sVersion)
         {
             name = sName;
             version = sVersion;
         }
 
+        /// <summary>
+        /// Check for matching name but conflicting versions
+        /// </summary>
+        /// <param name="pi"></param>
+        /// <returns></returns>
         public bool CheckConflict (PackageInfo pi)
         {
             bool nameMatch = name.Equals(pi.name);
@@ -42,11 +53,20 @@ namespace ConfigIt
             return (nameMatch && !versionMatch);
         }
 
+        /// <summary>
+        /// Display String for output purposes
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
-            return name + " v." + version; //"<{name}> v.<{version}>"
+            return name + " v." + version; 
         }
 
+        /// <summary>
+        /// Do both packages match in name and version
+        /// </summary>
+        /// <param name="pi"></param>
+        /// <returns></returns>
         public bool Equals (PackageInfo pi)
         {
             return (name.Equals(pi.name) && version.Equals(pi.version));
